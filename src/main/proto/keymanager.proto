@@ -5,6 +5,7 @@ option java_package = "br.com.zup.rodrigoeduque";
 option java_outer_classname = "Keymanager";
 
 package br.com.zup.rodrigoeduque;
+import "google/protobuf/any.proto";
 
 service KeymanagerService {
     rpc registra(RegistrarChavePixRequest) returns (RegistrarChavePixResponse) {}
@@ -35,4 +36,10 @@ message RegistrarChavePixRequest {
 message RegistrarChavePixResponse {
     string idCliente = 1;
     string idPix = 2;
+}
+
+message ErrorDetails {
+    int32 code = 1;
+    string message = 2;
+    repeated google.protobuf.Any details = 3;
 }
