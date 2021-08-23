@@ -50,17 +50,19 @@ class RegistrarChavePixEndpoint(@Inject val service: ChaveService) : KeymanagerS
             e.stackTrace
             responseObserver.onError(
                 Status.NOT_FOUND
-                    .withDescription("${e.message} /n Identificador cliente Itau Inválido")
+                    .withDescription("${e.message} Identificador cliente Itau Inválido")
                     .withCause(e.cause)
                     .asRuntimeException()
             )
         } catch (e: ChaveExistenteException) {
+            e.stackTrace
             responseObserver.onError(
                 Status.ALREADY_EXISTS
                     .withDescription(e.message)
                     .withCause(e.cause)
                     .asRuntimeException()
             )
+            return
         } catch (e: Throwable) {
             responseObserver.onError(
                 Status.INTERNAL

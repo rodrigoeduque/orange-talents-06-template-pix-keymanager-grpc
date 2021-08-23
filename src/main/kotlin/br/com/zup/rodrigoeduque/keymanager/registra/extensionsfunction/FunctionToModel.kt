@@ -8,7 +8,7 @@ import java.util.*
 fun RegistrarChavePixRequest.toModel(): NovaChaveRequest {
     return NovaChaveRequest(
         idCliente = this.idCliente,
-        tipoChavePix = this.tipoChavePix,
+        tipoChavePix  = this.tipoChavePix,
         chave = when (this.tipoChavePix) {
             TipoChavePix.CHAVE_ALEATORIA -> UUID.randomUUID().toString()
             else -> this.chave

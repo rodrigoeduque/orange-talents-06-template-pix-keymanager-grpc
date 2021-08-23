@@ -16,17 +16,16 @@ class ChaveService(@Inject val repository: ChaveRepository, @Inject val client: 
     fun registrar(chaveDto: NovaChaveRequest): Chave {
 
         if (repository.existsByChave(chaveDto.chave)) {
-            throw ChaveExistenteException("Chave já está sendo utilizada > ${chaveDto.chave}")
+            throw ChaveExistenteException("Chave já está sendo utilizada")
         }
 
         val response = client.buscaContaPorTipo(chaveDto.idCliente, chaveDto.tipoConta.name)
 
-        // Havia implementado dessa forma, no entanto achei mais interessante a forma como o Rafael abordou usando o Elvis Operator
-//        if (response.status == HttpStatus.INTERNAL_SERVER_ERROR) {
-//            throw IllegalStateException("Identificador do Cliente/Tipo de Conta com Formato Inválido")
-//        }
+        val conta = response.body().toModel()
 
-        val conta = response.body().toModel() ?: throw IllegalStateException("Cliente não Encontrado")
+        if (conta == null) {
+            throw IllegalStateException("Cliente não Encontrado")
+        }
 
         val chaveCriada = chaveDto.toEntity(conta)
 
