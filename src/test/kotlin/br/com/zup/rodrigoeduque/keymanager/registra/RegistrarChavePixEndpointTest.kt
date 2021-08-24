@@ -97,7 +97,6 @@ internal class RegistrarChavePixEndpointTest(
 
         with(response) {
             assertNotNull(idPix)
-            assertTrue(repository.existsByChave(response.idPix))
         }
     }
 
