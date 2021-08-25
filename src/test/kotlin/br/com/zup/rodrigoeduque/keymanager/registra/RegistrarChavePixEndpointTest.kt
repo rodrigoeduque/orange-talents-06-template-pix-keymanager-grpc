@@ -4,6 +4,9 @@ import br.com.zup.rodrigoeduque.KeymanagerServiceGrpc
 import br.com.zup.rodrigoeduque.RegistrarChavePixRequest
 import br.com.zup.rodrigoeduque.TipoChavePix
 import br.com.zup.rodrigoeduque.TipoConta
+import br.com.zup.rodrigoeduque.keymanager.integracao.itau.DadosContaResponse
+import br.com.zup.rodrigoeduque.keymanager.integracao.itau.InstituicaoResponse
+import br.com.zup.rodrigoeduque.keymanager.integracao.itau.TitularResponse
 import io.grpc.ManagedChannel
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
@@ -27,7 +30,7 @@ internal class RegistrarChavePixEndpointTest(
         InstituicaoResponse("ITAÚ UNIBANCO S.A.", "60701190"),
         "0001",
         "212233",
-        TitularResponse(UUID.randomUUID(), "Alberto Tavares", "06628726061")
+        TitularResponse(UUID.randomUUID(), "Alberto Tavares", "39109890041")
     )
 
     private val idClienteTest: String = "0d1bb194-3c52-4e67-8c35-a93c0af9284f"

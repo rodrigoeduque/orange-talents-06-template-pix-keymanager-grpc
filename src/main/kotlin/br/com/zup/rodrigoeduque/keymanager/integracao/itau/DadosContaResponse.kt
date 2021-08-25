@@ -1,7 +1,6 @@
-package br.com.zup.rodrigoeduque.keymanager.registra
+package br.com.zup.rodrigoeduque.keymanager.integracao.itau
 
 import br.com.zup.rodrigoeduque.keymanager.Conta
-import java.util.*
 
 data class DadosContaResponse(
     val tipo: String,
@@ -20,16 +19,3 @@ data class DadosContaResponse(
         )
     }
 }
-
-data class InstituicaoResponse(
-    val nome: String,
-    val ispb: String
-
-)
-
-data class TitularResponse(
-    val id: UUID,
-    val nome: String,
-    val cpf: String
-)
-

@@ -15,10 +15,14 @@ import javax.validation.constraints.Size
 class Chave(
     @field:NotBlank @field:Column(nullable = false) val idCliente: String,
     @field:NotNull @field:Column(nullable = false) @Enumerated(EnumType.STRING) val tipoChave: TipoChavePix?,
-    @field:NotBlank @field:Size(max = 77) @field:Column(nullable = false) val chave: String,
+    @field:NotBlank @field:Size(max = 77) @field:Column(nullable = false) var chave: String,
     @field:NotNull @field:Column(nullable = false) @Enumerated(EnumType.STRING) val tipoConta: TipoConta,
     @Embedded val conta: Conta
 ) {
+    fun atualiza(key: String) {
+        chave = key
+    }
+
     @Id
     @GeneratedValue
     val id: UUID? = null

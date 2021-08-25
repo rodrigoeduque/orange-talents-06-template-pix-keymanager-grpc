@@ -13,4 +13,8 @@ class Conta(
     override fun toString(): String {
         return "Conta(instituicao='$instituicao', nome='$nome', cpf='$cpf', agencia='$agencia', numero='$numero')"
     }
+
+    companion object{
+        public val CODIGO_ISPB: String = "60701190"
+    }
 }
