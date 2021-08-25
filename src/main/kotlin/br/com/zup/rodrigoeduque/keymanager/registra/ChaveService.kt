@@ -32,19 +32,19 @@ class ChaveService(
             throw ChaveExistenteException("Chave já está sendo utilizada")
         }
 
-        LOG.info("Realizando a verificação do ID junto ao sistema integrado do ITAU")
+        LOG.info("Iniciano Integração |ITAU|")
 
         val response = contaClienteItauClient.buscaContaPorTipo(chaveDto.idCliente, chaveDto.tipoConta.name)
         val conta = response.body().toModel() ?: throw IllegalStateException("Cliente não identificado no Sistema ITAU")
+        LOG.info("Finalizando Integração |ITAU|")
+
 
         LOG.info("Realizando a persistencia")
 
         val chaveCriada = chaveDto.toEntity(conta)
         repository.save(chaveCriada)
 
-        LOG.info("VALOR KEY PIX GERADO PELO SISTEMA --------------------------------------=> ${chaveCriada.chave}")
-
-        LOG.info("Registrando no BCB")
+        LOG.info("Iniciando Integração |BCB|")
         val bcbRequest =
             CreatePixKeyRequest.of(chaveCriada).also { LOG.info("Registrando Chave Pix no Banco Central |BCB|: $it") }
 
@@ -56,7 +56,7 @@ class ChaveService(
         }
 
         chaveCriada.atualiza(responseBcb.body().key)
-        LOG.info("VALOR KEY PIX GERADO PELO BCB --------------------------------------=> ${chaveCriada.chave}")
+        LOG.info("Finalizando Integração |BCB|")
 
         return chaveCriada
     }
