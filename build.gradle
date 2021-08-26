@@ -24,8 +24,8 @@ micronaut {
 }
 
 dependencies {
+    kapt("io.micronaut.data:micronaut-data-processor")
     implementation("io.micronaut:micronaut-runtime")
-    implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.grpc:micronaut-grpc-runtime")
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("javax.annotation:javax.annotation-api")
@@ -33,35 +33,31 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("io.micronaut:micronaut-validation")
-    implementation("org.hibernate:hibernate-validator:6.1.6.Final")
-    implementation("org.valiktor:valiktor-core:0.12.0")
-    implementation('io.micronaut.beanvalidation:micronaut-hibernate-validator:3.0.0')
 
-    //XML
+    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+
+
+    implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.xml:micronaut-jackson-xml")
 
-    //TEST
-    testImplementation("io.micronaut.xml:micronaut-jackson-xml")
-    runtimeOnly("com.h2database:h2")
-    testImplementation("org.mockito:mockito-core:3.+")
-    testImplementation("io.micronaut:micronaut-http-client")
-    testAnnotationProcessor("io.micronaut:micronaut-inject-java:$micronautVersion")
-
-    //JPA
-    implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
-    implementation("org.postgresql:postgresql")
-
-
+    implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+    implementation("org.postgresql:postgresql:42.1.4")
+    //testes
+    kaptTest "io.micronaut:micronaut-inject-java"
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.8.0")
+    testImplementation("io.micronaut.test:micronaut-test-junit5:2.3.7")
+    testImplementation("com.h2database:h2")
+    testImplementation("org.hamcrest:hamcrest-core:2.2")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.testcontainers:testcontainers")
 }
-
 
 application {
     mainClass.set("br.com.zup.rodrigoeduque.ApplicationKt")
-}
-
-test {
-    useJUnitPlatform()
 }
 
 java {

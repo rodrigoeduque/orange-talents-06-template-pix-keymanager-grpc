@@ -1,7 +1,9 @@
 package br.com.zup.rodrigoeduque.keymanager.registra
 
 import br.com.zup.rodrigoeduque.keymanager.Chave
+import br.com.zup.rodrigoeduque.keymanager.Conta
 import br.com.zup.rodrigoeduque.keymanager.exceptions.ChaveExistenteException
+import br.com.zup.rodrigoeduque.keymanager.exceptions.ClienteNaoIdentificadoException
 import br.com.zup.rodrigoeduque.keymanager.integracao.bcb.BcbClient
 import br.com.zup.rodrigoeduque.keymanager.integracao.bcb.CreatePixKeyRequest
 import br.com.zup.rodrigoeduque.keymanager.integracao.itau.ContaClienteItauClient
@@ -17,7 +19,7 @@ import javax.transaction.Transactional
 @Validated
 class ChaveService(
     @Inject val repository: ChaveRepository,
-    @Inject val contaClienteItauClient: ContaClienteItauClient,
+    @Inject val itauClient: ContaClienteItauClient,
     @Inject val bcBClient: BcbClient
 ) {
 
@@ -31,15 +33,22 @@ class ChaveService(
         if (repository.existsByChave(chaveDto.chave)) {
             throw ChaveExistenteException("Chave já está sendo utilizada")
         }
-
-        LOG.info("Iniciano Integração |ITAU|")
-
-        val response = contaClienteItauClient.buscaContaPorTipo(chaveDto.idCliente, chaveDto.tipoConta.name)
-        val conta = response.body().toModel() ?: throw IllegalStateException("Cliente não identificado no Sistema ITAU")
-        LOG.info("Finalizando Integração |ITAU|")
+        val conta: Conta
 
 
-        LOG.info("Realizando a persistencia")
+        try {
+            LOG.info("Iniciano Integração |ITAU|")
+            val response = itauClient.buscaContaPorTipo(chaveDto.idCliente, chaveDto.tipoConta.name)
+            conta =
+                response.body()?.toModel() ?: throw ClienteNaoIdentificadoException("Cliente não encontrado no Itau")
+            LOG.info("Finalizando Integração |ITAU|")
+        } catch (e: NullPointerException) {
+
+            throw IllegalStateException("Cliente não encontrado no Itau")
+
+        }
+
+        LOG.info("Persistencia | Banco De Dados |")
 
         val chaveCriada = chaveDto.toEntity(conta)
         repository.save(chaveCriada)
@@ -47,9 +56,13 @@ class ChaveService(
         LOG.info("Iniciando Integração |BCB|")
         val bcbRequest =
             CreatePixKeyRequest.of(chaveCriada).also { LOG.info("Registrando Chave Pix no Banco Central |BCB|: $it") }
+        LOG.warn("bcbRequest -> ${bcbRequest}")
 
-        val responseBcb = bcBClient.criar(bcbRequest).also {
-            LOG.info("Status => ${it.status}")
+        val responseBcb = bcBClient.criar(bcbRequest)
+        LOG.warn("STATUS -> ${responseBcb.status}")
+
+        if (responseBcb.status == HttpStatus.UNPROCESSABLE_ENTITY) {
+            throw IllegalStateException("Chave PIX já cadastrada anteriormente no Banco Central do Brasil")
         }
         if (responseBcb.status != HttpStatus.CREATED) {
             throw IllegalStateException("Erro ao Registrar chave junto ao Banco Central ")

@@ -4,7 +4,9 @@ import br.com.zup.rodrigoeduque.ErrorDetails
 import br.com.zup.rodrigoeduque.KeymanagerServiceGrpc
 import br.com.zup.rodrigoeduque.RegistrarChavePixRequest
 import br.com.zup.rodrigoeduque.RegistrarChavePixResponse
+import br.com.zup.rodrigoeduque.keymanager.Chave
 import br.com.zup.rodrigoeduque.keymanager.exceptions.ChaveExistenteException
+import br.com.zup.rodrigoeduque.keymanager.exceptions.ClienteNaoIdentificadoException
 import br.com.zup.rodrigoeduque.keymanager.exceptions.InfoInvalidaException
 import com.google.protobuf.Any
 import com.google.rpc.ErrorDetailsProto
@@ -25,52 +27,27 @@ class RegistrarChavePixEndpoint(@Inject val service: ChaveService) : KeymanagerS
         request: RegistrarChavePixRequest,
         responseObserver: StreamObserver<RegistrarChavePixResponse>
     ) {
+        val chaveDto = request.toModel()
+        val chavePixCriada: Chave
+
         try {
-            val chaveDto = request.toModel()
-//        val chavePixCriada = chaveDto.toEntity() -> O código se tornou ilegivel sem usar o service
-
-            val chavePixCriada = service.registrar(chaveDto)
-            responseObserver.onNext(
-                RegistrarChavePixResponse.newBuilder()
-                    .setIdCliente(chavePixCriada.idCliente)
-                    .setIdPix(chavePixCriada.id.toString())
-                    .build()
-            )
-            responseObserver.onCompleted()
-
-        } catch (e: InfoInvalidaException) {
+            chavePixCriada = service.registrar(chaveDto)
+        } catch (e: IllegalStateException) {
             e.stackTrace
-            responseObserver.onError(
-                Status.INVALID_ARGUMENT
-                    .withDescription(e.message)
-                    .withCause(e.cause)
-                    .asRuntimeException()
-            )
-        } catch (e: HttpClientResponseException) {
-            e.stackTrace
-            responseObserver.onError(
-                Status.NOT_FOUND
-                    .withDescription("${e.message} Identificador cliente Itau Inválido")
-                    .withCause(e.cause)
-                    .asRuntimeException()
-            )
-        } catch (e: ChaveExistenteException) {
-            e.stackTrace
-            responseObserver.onError(
-                Status.ALREADY_EXISTS
-                    .withDescription(e.message)
-                    .withCause(e.cause)
-                    .asRuntimeException()
-            )
+            val error = Status.FAILED_PRECONDITION
+                .withDescription(e.message)
+                .asRuntimeException()
+            responseObserver.onError(error)
             return
-        } catch (e: Throwable) {
-            responseObserver.onError(
-                Status.INTERNAL
-                    .withDescription(e.message)
-                    .withCause(e.cause)
-                    .asRuntimeException()
-            )
         }
+
+        responseObserver.onNext(
+            RegistrarChavePixResponse.newBuilder()
+                .setIdCliente(chavePixCriada.idCliente)
+                .setIdPix(chavePixCriada.id.toString())
+                .build()
+        )
+        responseObserver.onCompleted()
 
     }
 }

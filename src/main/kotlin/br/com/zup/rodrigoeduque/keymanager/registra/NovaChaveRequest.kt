@@ -25,5 +25,7 @@ data class NovaChaveRequest(
     @field:NotNull
     @field:NotBlank
     val tipoConta: TipoConta
-)
+) {
+
+}
 

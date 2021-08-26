@@ -10,14 +10,16 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 import java.util.*
+import javax.transaction.Transactional
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @Singleton
 @Validated
-class RemoverChaveService(@Inject val repository: ChaveRepository, @Inject val client: BcbClient) {
+class RemoverChaveService(@Inject val repository: ChaveRepository, @Inject val bcBClient: BcbClient) {
     private val LOG = LoggerFactory.getLogger(this::class.java)
 
+    @Transactional
     fun remove(@NotNull idPix: UUID, @NotBlank idCliente: String) {
         LOG.info("Realizando Verificação se ID Cliente e Chave Pix existem no banco")
 
@@ -29,7 +31,7 @@ class RemoverChaveService(@Inject val repository: ChaveRepository, @Inject val c
 
         LOG.info("Iniciando Integração |BCB|")
         val request = DeletePixKeyRequest(existe.chave)
-        val responseBcb = client.remover(request, existe.chave)
+        val responseBcb = bcBClient.remover(request, existe.chave)
 
         if (responseBcb.status != HttpStatus.OK) {
             throw IllegalStateException("Erro ao tentra remover chave Pix |Service BCB| ")
