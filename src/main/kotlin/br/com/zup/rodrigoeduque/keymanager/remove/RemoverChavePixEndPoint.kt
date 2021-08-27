@@ -8,6 +8,7 @@ import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import java.lang.IllegalStateException
 import java.util.*
 
 @Singleton
@@ -24,6 +25,11 @@ class RemoverChavePixEndPoint(@Inject val removerChaveService: RemoverChaveServi
             )
             responseObserver.onCompleted()
         } catch (e: ChaveClienteInexistenteException) {
+            e.stackTrace
+            responseObserver.onError(
+                Status.NOT_FOUND.withDescription(e.message).withCause(e.cause).asRuntimeException()
+            )
+        } catch (e: IllegalStateException){
             e.stackTrace
             responseObserver.onError(
                 Status.NOT_FOUND.withDescription(e.message).withCause(e.cause).asRuntimeException()

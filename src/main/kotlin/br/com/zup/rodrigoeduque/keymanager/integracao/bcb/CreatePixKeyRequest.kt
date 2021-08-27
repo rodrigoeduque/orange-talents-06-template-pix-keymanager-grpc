@@ -36,17 +36,12 @@ data class CreatePixKeyRequest(
         other as CreatePixKeyRequest
 
         if (keyType != other.keyType) return false
-        if (bankAccount != other.bankAccount) return false
-        if (owner != other.owner) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = keyType?.hashCode() ?: 0
-        result = 31 * result + bankAccount.hashCode()
-        result = 31 * result + owner.hashCode()
-        return result
+        return keyType?.hashCode() ?: 0
     }
 
 

@@ -14,6 +14,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 import javax.transaction.Transactional
+import javax.validation.Valid
 
 @Singleton
 @Validated
@@ -26,7 +27,7 @@ class ChaveService(
     private val LOG = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
-    fun registrar(chaveDto: NovaChaveRequest): Chave {
+    fun registrar(@Valid chaveDto: NovaChaveRequest): Chave {
 
         LOG.info("Verificando existencia de Chave no sistema")
 
@@ -35,18 +36,12 @@ class ChaveService(
         }
         val conta: Conta
 
+        LOG.info("Iniciano Integração |ITAU|")
+        val response = itauClient.buscaContaPorTipo(chaveDto.idCliente, chaveDto.tipoConta.name)
+        conta = response.body()?.toModel() ?: throw ClienteNaoIdentificadoException("Cliente não encontrado no Itau")
+        LOG.info("Finalizando Integração |ITAU|")
 
-        try {
-            LOG.info("Iniciano Integração |ITAU|")
-            val response = itauClient.buscaContaPorTipo(chaveDto.idCliente, chaveDto.tipoConta.name)
-            conta =
-                response.body()?.toModel() ?: throw ClienteNaoIdentificadoException("Cliente não encontrado no Itau")
-            LOG.info("Finalizando Integração |ITAU|")
-        } catch (e: NullPointerException) {
 
-            throw IllegalStateException("Cliente não encontrado no Itau")
-
-        }
 
         LOG.info("Persistencia | Banco De Dados |")
 

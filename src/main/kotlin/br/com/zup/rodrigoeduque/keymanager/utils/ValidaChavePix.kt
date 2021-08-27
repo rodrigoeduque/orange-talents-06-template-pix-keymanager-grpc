@@ -16,6 +16,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FIELD)
 @Constraint(validatedBy = [PixValidator::class])
 
+
 annotation class ValidaChavePix(
     val message: String = "Chave Pix invalida",
     val groups: Array<KClass<Any>> = [],
