@@ -23,4 +23,6 @@ interface BcbClient {
         consumes = [MediaType.APPLICATION_XML]
     )
     fun remover(@Body request: DeletePixKeyRequest, @PathVariable key: String): HttpResponse<DeletePixKeyResponse>
+
+    fun buscarChave(@PathVariable chave: String) : HttpResponse<CreatePixKeyResponse>
 }
